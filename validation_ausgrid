@@ -67,6 +67,7 @@ GHI_NewCastle=get_power(community = "re",
 GHI_NewCastle=GHI_NewCastle%>%group_by(YEAR,MM)%>%summarise(GHI=sum(ALLSKY_SFC_SW_DWN))
 GHI_NewCastle$region="NewCastleLake"
 GHI_AUSTRALIA=bind_rows(GHI_SYDNEY,GHI_NewCastle,GHI_COAST)
+ausgrid=ausgrid%>%left_join(GHI_AUSTRALIA,by=c("YEAR"="YEAR","region"="region","MM"="MM"))
 ausgridF=ausgrid%>%mutate(GHI_C=GHI*Generator.Capacity)
 ausgridF1=ausgridF%>%filter(!is.na(GHI_C))
 ausgridF2=ausgridF1%>%filter(!Gross_Generation==0)
