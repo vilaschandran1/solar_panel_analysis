@@ -1,21 +1,21 @@
 ###DOWNLOAD THE VALIDATION DATA SET utlising link provided in the README.md#############################################################
 ######################################LOADING DATA SET R STUDIO#########################################################################
-install.package("tidyverse")
-install.package("nasapower")
-install.package("fixest")
-install.package("Metrics")
+install.packages("tidyverse")
+install.packages("nasapower")
+install.packages("fixest")
+install.packages("Metrics")
 library(tidyverse)
 library(nasapower)
 library(fixest)
 library(Metrics)
 validation=read.csv("\\2012-2013 Solar home electricity data v2.csv",skip=1) ##FILE PATH CAN ALTERED ACCORDINGLY
-ausgrid=validation%>%pivot_longer(cols =X0.30:X0.00,
+ausgridV=validation%>%pivot_longer(cols =X0.30:X0.00,
                                names_to = "half_hour",
                                values_to = "kWh")%>%pivot_wider(names_from = "Consumption.Category",
                                                                 values_from = "kWh")
-ausgrid=ausgrid%>%mutate(clean_date=dmy(date))
-ausgrid=ausgrid%>%mutate(YEAR=year(clean_date),MM=month(clean_date),DD=day(clean_date))
-ausgrid=ausgrid%>%group_by(YEAR,MM,Customer,Generator.Capacity,Postcode)%>%summarise(Gross_Generation=sum(GG,na.rm = TRUE),Consumption=sum(GC,na.rm = TRUE),OffPeakC=sum(CL,na.rm = TRUE))
+ausgridV=ausgridV%>%mutate(clean_date=dmy(date))
+ausgridV=ausgridV%>%mutate(YEAR=year(clean_date),MM=month(clean_date),DD=day(clean_date))
+ausgridV=ausgridV%>%group_by(YEAR,MM,Customer,Generator.Capacity,Postcode)%>%summarise(Gross_Generation=sum(GG,na.rm = TRUE),Consumption=sum(GC,na.rm = TRUE),OffPeakC=sum(CL,na.rm = TRUE))
 sydney_vector=c(2000,2006,2007,2008,2009,2010,2011,2015,2016,2017,2018,2019,
                 2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,
                 2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,
@@ -41,7 +41,7 @@ CentralCoast_veector=c(2083,2250,2251,2256,2257,2258,2259,2260,2261,2262,2263)
 NewCastleLakeMACC=c(2259,2264,2265,2267,2278,2280,2281,2282,2283,2284,2285,2286,
                     2287,2289,2290,2291,2292,2293,2294,2295,2296,2297,2298,2299,
                     2300,2302,2303,2304,2305,2306,2307,2308,2318,2322,2323)
-ausgrid=ausgrid%>%mutate(region=case_when(Postcode%in%sydney_vector~"sydney",
+ausgridV=ausgridV%>%mutate(region=case_when(Postcode%in%sydney_vector~"sydney",
                                           Postcode%in%CentralCoast_veector~"CentralCoast",
                                           Postcode%in%NewCastleLakeMACC~"NewCastleLake",
                                           TRUE~"unassigned"))
@@ -68,7 +68,7 @@ GHI_NewCastle=GHI_NewCastle%>%group_by(YEAR,MM)%>%summarise(GHI=sum(ALLSKY_SFC_S
 GHI_NewCastle$region="NewCastleLake"
 GHI_AUSTRALIA=bind_rows(GHI_SYDNEY,GHI_NewCastle,GHI_COAST)
 ausgrid=ausgrid%>%left_join(GHI_AUSTRALIA,by=c("YEAR"="YEAR","region"="region","MM"="MM"))
-ausgridF=ausgrid%>%mutate(GHI_C=GHI*Generator.Capacity)
+ausgridF=ausgridV%>%mutate(GHI_C=GHI*Generator.Capacity)
 ausgridF1=ausgridF%>%filter(!is.na(GHI_C))
 ausgridF2=ausgridF1%>%filter(!Gross_Generation==0)
 ausgridF3=ausgridF2%>%mutate(e_gross=0.80*(GHI_C))
