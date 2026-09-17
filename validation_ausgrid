@@ -75,7 +75,7 @@ ausgridF3=ausgridF2%>%mutate(e_gross=0.80*(GHI_C))
 ausgridF4=ausgridF3%>%filter(!is.na(e_gross))
 ###########################################ONE-WAY FIXED EFFECTS MODEL########################################################
 one_way_egross=feols(Gross_Generation~e_gross|Customer,data=ausgridF4,cluster=~Customer)
-summary(one_way_egross) #Within R^2, SLOPE COFFICIENT, Can be extracted 
+summary(one_way_egross) #Within R^2, SLOPE COFFICIENT, RSME Can be extracted 
 #######################################MEAN-AVERAGE ERROR CALCULATION##########################################################
 residuals22=resid(one_way_egross,type = "response")
 MAE22=mean(abs(residuals22))
